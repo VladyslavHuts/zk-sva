@@ -39,24 +39,16 @@ This version integrates real cryptographic zero-knowledge proofs using:
 ## 🔄 ZK Proof Workflow
 
 ```bash
-# 1. Compile circuit
-circom proof.circom --r1cs --wasm --sym
+# 1. Compile the circuit (one-time)
+circom proof.circom --r1cs --wasm --sym -o zk/build
 
-# 2. Generate witness
+# 2. Generate the witness
 node proof_js/generate_witness.js proof_js/proof.wasm input.json witness.wtns
 
-# 3. Setup trusted ceremony
-snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
-snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="Contributor" -v
-snarkjs powersoftau prepare phase2 pot12_0001.ptau pot12_final.ptau -v
+# 3. Generate the zk-SNARK proof
+snarkjs groth16 prove proof_0000.zkey witness.wtns proof.json public.json
 
-# 4. Generate keys
-snarkjs groth16 setup proof.r1cs pot12_final.ptau proof_0000.zkey
-snarkjs zkey contribute proof_0000.zkey proof_final.zkey --name="Contributor" -v
-snarkjs zkey export verificationkey proof_final.zkey verification_key.json
-
-# 5. Generate and verify the proof
-snarkjs groth16 prove proof_final.zkey witness.wtns proof.json public.json
+# 4. Verify the proof
 snarkjs groth16 verify verification_key.json public.json proof.json
 
 ```
