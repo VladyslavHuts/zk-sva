@@ -1,35 +1,132 @@
 # Zero-Knowledge Self-Verification Architecture (ZK-SVA)
 
-A proof-of-concept Python architecture that enables **Large Language Models (LLMs)** to self-verify their outputs using cryptographic hashing and mock zero-knowledge proofs (ZKPs).  
-Designed for **privacy-preserving, decentralized, and transparent AI responses**.
+A **proof-of-concept system** that enables Large Language Models (LLMs) to **self-verify their outputs** using real zero-knowledge proofs (ZKPs) and cryptographic hashing.  
+Built for **verifiable**, **privacy-preserving**, and **decentralized AI**.
 
 ---
 
-## What It Does
+## ⚙️ How It Works
 
-1. Accepts a natural language prompt  
-2. Uses a pre-trained LLM (GPT-2) to generate an answer  
-3. Generates a `digest` of the prompt + output using `BLAKE3`  
-4. Simulates a zero-knowledge proof (ZKP) for the output  
-5. Verifies the proof before accepting the output as valid  
+1. Accept a user prompt  
+2. Generate an output using GPT-2 (or any LLM)  
+3. Compute a BLAKE3 hash of `prompt + output`  
+4. Create a zk-SNARK proof of correct hashing using Circom + snarkjs  
+5. Verify the proof — and only then accept the output
+
+---
+
+## 🔐 Why It Matters
+
+> In an era of AI hallucinations and unverifiable claims, **ZK-SVA** introduces a cryptographic mechanism to **verify model outputs without revealing internal logic**.
+
+This enables:
+- Verifiable AI results  
+- Tamper-resistant response chains  
+- Trust without transparency compromises
 
 ---
 
-## Why It Matters
+## ✅ Real ZK-SNARK Integration
 
-> In a world where AI is used for decision-making, **trust and verifiability** are essential.  
-ZK-SVA shows how an AI system can be built to **prove that it didn't hallucinate** — without revealing internal model weights or user data.
+This version integrates real cryptographic zero-knowledge proofs using:
+
+- [`circom`](https://docs.circom.io/) — circuit design  
+- [`snarkjs`](https://github.com/iden3/snarkjs) — proof generation and verification  
+- [`blake3`](https://github.com/BLAKE3-team/BLAKE3) — hashing mechanism  
 
 ---
+
+## 🔄 ZK Proof Workflow
+
+```bash
+# 1. Compile circuit
+circom proof.circom --r1cs --wasm --sym
+
+# 2. Generate witness
+node proof_js/generate_witness.js proof_js/proof.wasm input.json witness.wtns
+
+# 3. Setup trusted ceremony
+snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
+snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="Contributor" -v
+snarkjs powersoftau prepare phase2 pot12_0001.ptau pot12_final.ptau -v
+
+# 4. Generate keys
+snarkjs groth16 setup proof.r1cs pot12_final.ptau proof_0000.zkey
+snarkjs zkey contribute proof_0000.zkey proof_final.zkey --name="Contributor" -v
+snarkjs zkey export verificationkey proof_final.zkey verification_key.json
+
+# 5. Generate and verify the proof
+snarkjs groth16 prove proof_final.zkey witness.wtns proof.json public.json
+snarkjs groth16 verify verification_key.json public.json proof.json
+
+```
+
+---
+
+## Installation
+
+### Clone the repository
+
+```bash
+git clone https://github.com/your-username/zk_sva_project.git
+cd zk_sva_project
+```
+
+### Create virtual environment and install Python dependencies
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### Install Circom and snarkjs
+
+```bash
+# Install Rust & Circom
+cargo install --locked --git https://github.com/iden3/circom
+
+# Install snarkjs via npm
+npm install -g snarkjs
+```
+
+### Run the Project
+
+```bash
+python main.py --prompt "What is ZK and why does it matter?"
+```
+
+### Example Output
+
+```bash
+Prompt: What is ZK and why does it matter?
+Output: ZK allows you to prove a statement is true without revealing why it's true...
+Digest (mod 2^251): 12345678901234567890
+Proof verified. Output is cryptographically valid.
+```
 
 ## Project Structure
 
 ```bash
-zk_sva_project/
-├── main.py                 # Entry point
-├── models/
-│   └── llm.py              # LLM generation logic (GPT-2)
-├── zk/
-│   ├── proof_generator.py  # Mock ZK proof generator
-│   └── verifier.py         # Proof verifier
-└── requirements.txt        # Dependencies
+zk-sva/
+├── main.py               # Entry point
+├── models/               # GPT-2 inference logic
+│   └── llm.py
+├── zk/                   # ZK proof generation logic
+│   ├── build/            # Input/output/proof artifacts
+│   ├── proof.circom      # ZK circuit
+│   └── circom_runner.py
+├── requirements.txt      # Python deps
+├── .gitignore
+└── README.md
+
+```
+## License
+This project is licensed under the MIT License.
+See LICENSE for details.
+MIT License: https://opensource.org/licenses/MIT
+
+
+
+
+
