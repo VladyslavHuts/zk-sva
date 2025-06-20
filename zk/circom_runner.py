@@ -1,11 +1,19 @@
 import subprocess
 import json
 import os
+import shutil
 
 ZK_DIR = os.path.dirname(__file__)
 BUILD_DIR = os.path.join(ZK_DIR, "build")
 
-SNARKJS_PATH = "C:/Users/vladg/AppData/Roaming/npm/snarkjs.cmd"
+# Платформонезалежний шлях до snarkjs
+def get_snarkjs_cmd():
+    if shutil.which("snarkjs"):
+        return ["snarkjs"]
+    elif shutil.which("npx"):
+        return ["npx", "snarkjs"]
+    else:
+        raise FileNotFoundError("snarkjs not found. Make sure it's installed globally or accessible via npx.")
 
 def write_input_json(expected: int, actual: int):
     data = {
@@ -16,7 +24,6 @@ def write_input_json(expected: int, actual: int):
     with open(input_path, "w") as f:
         json.dump(data, f)
     print(f"📝 input.json created at {input_path}")
-
 
 def generate_proof():
     os.chdir(BUILD_DIR)
@@ -30,9 +37,10 @@ def generate_proof():
         "witness.wtns"
     ], check=True)
 
+    snarkjs = get_snarkjs_cmd()
+
     print("🔐 Generating proof...")
-    subprocess.run([
-        SNARKJS_PATH,
+    subprocess.run(snarkjs + [
         "groth16",
         "prove",
         "proof_0000.zkey",
@@ -42,8 +50,7 @@ def generate_proof():
     ], check=True)
 
     print("🔎 Verifying proof...")
-    result = subprocess.run([
-        SNARKJS_PATH,
+    result = subprocess.run(snarkjs + [
         "groth16",
         "verify",
         "verification_key.json",
