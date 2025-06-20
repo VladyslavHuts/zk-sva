@@ -12,24 +12,24 @@ def write_input_json(expected: int, actual: int):
     }
     with open(os.path.join(BUILD_DIR, "input.json"), "w") as f:
         json.dump(data, f)
-    print("📝 input.json створено")
+    print("📝 input.json created")
 
 def generate_proof():
     os.chdir(BUILD_DIR)
 
-    print("⚙️  Генерація witness...")
+    print("⚙️  Generating witness...")
     subprocess.run(["node", "proof_js/generate_witness.js", "proof_js/proof.wasm", "input.json", "witness.wtns"], check=True)
 
-    print("⚙️  Генерація proof...")
+    print("⚙️  Generating proof...")
     subprocess.run(["snarkjs", "groth16", "prove", "proof_0000.zkey", "witness.wtns", "proof.json", "public.json"], check=True)
 
-    print("⚙️  Верифікація proof...")
+    print("⚙️  Verifying proof...")
     result = subprocess.run(["snarkjs", "groth16", "verify", "verification_key.json", "public.json", "proof.json"], capture_output=True, text=True)
 
     if "OK!" in result.stdout:
-        print("✅ Proof успішно верифіковано")
+        print("✅ Proof successfully verified")
         return True
     else:
-        print("❌ Помилка при перевірці")
+        print("❌ Verification error")
         print(result.stdout)
         return False

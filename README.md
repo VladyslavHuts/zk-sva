@@ -1,5 +1,13 @@
 # Zero-Knowledge Self-Verification Architecture (ZK-SVA)
 
+![Python](https://img.shields.io/badge/Python-3.13%2B-blue?logo=python)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+![Status](https://img.shields.io/badge/status-active-brightgreen)
+![ZK-SNARK](https://img.shields.io/badge/ZKProof-Groth16-informational?logo=lock&color=blue)
+![Python Tests](https://github.com/VladyslavHuts/zk-sva/actions/workflows/python-tests.yml/badge.svg)
+
+
 A **proof-of-concept system** that enables Large Language Models (LLMs) to **self-verify their outputs** using real zero-knowledge proofs (ZKPs) and cryptographic hashing.  
 Built for **verifiable**, **privacy-preserving**, and **decentralized AI**.
 
