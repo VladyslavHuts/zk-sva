@@ -124,6 +124,30 @@ zk-sva/
 └── README.md
 
 ```
+
+### ✅ Test Summary
+
+| Test                          | Module                   | Purpose                              | Result |
+|-------------------------------|--------------------------|---------------------------------------|--------|
+| test_digest_consistency       | test_digest.py           | Verifies deterministic Blake3 hash   | ✅     |
+| test_input_json_creation      | test_input_json.py       | Checks input.json structure           | ✅     |
+| test_llm_response             | test_llm.py              | Confirms LLM generates text           | ✅     |
+| test_main_function_output     | test_main.py             | Full ZK-SVA pipeline                  | ✅     |
+| test_proof_verification       | test_proof.py            | Validates ZK-SNARK proof (Groth16)    | ✅     |
+
+### 📊 Coverage Report
+
+| File                   | Statements | Missed | Coverage |
+|------------------------|------------|--------|----------|
+| main.py                | 24         | 9      | 62%      |
+| models/llm.py          | 5          | 0      | 100%     |
+| zk/circom_runner.py    | 43         | 13     | 70%      |
+| tests/ (all tests)     | 35         | 0      | 100%     |
+| **Total**              | **109**    | **22** | **80%**  |
+
+
+
+
 ## License
 This project is licensed under the MIT License.
 See LICENSE for details.

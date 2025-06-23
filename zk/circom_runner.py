@@ -2,18 +2,34 @@ import subprocess
 import json
 import os
 import shutil
+import sys
 
 ZK_DIR = os.path.dirname(__file__)
 BUILD_DIR = os.path.join(ZK_DIR, "build")
 
-# Платформонезалежний шлях до snarkjs
 def get_snarkjs_cmd():
-    if shutil.which("snarkjs"):
-        return ["snarkjs"]
-    elif shutil.which("npx"):
-        return ["npx", "snarkjs"]
-    else:
-        raise FileNotFoundError("snarkjs not found. Make sure it's installed globally or accessible via npx.")
+    """
+    Визначає правильну команду для запуску snarkjs у залежності від ОС та оточення.
+    """
+    # Абсолютний шлях до snarkjs.cmd (Windows)
+    windows_path = os.path.expanduser(r"~\AppData\Roaming\npm\snarkjs.cmd")
+
+    if os.name == "nt":  # Windows
+        if os.path.exists(windows_path):
+            return [windows_path]
+        elif shutil.which("snarkjs"):
+            return [shutil.which("snarkjs")]
+        elif shutil.which("npx"):
+            return ["npx", "snarkjs"]
+        else:
+            raise FileNotFoundError("❌ snarkjs not found. Install it globally with `npm install -g snarkjs`.")
+    else:  # Unix/Linux/Mac
+        if shutil.which("snarkjs"):
+            return ["snarkjs"]
+        elif shutil.which("npx"):
+            return ["npx", "snarkjs"]
+        else:
+            raise FileNotFoundError("❌ snarkjs not found. Install it globally or via npx.")
 
 def write_input_json(expected: int, actual: int):
     data = {
